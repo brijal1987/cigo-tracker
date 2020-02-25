@@ -9,7 +9,7 @@
 This is application for Cigo Tracker
 
 # Project Setup
--------------------
+
 
 ## Please open terminal and run below command to clone repo
 
