@@ -22,7 +22,7 @@ Project Setup
 
 ## Initiallize developement files
 
-```php initt```
+```php init```
 
 Which environment do you want the application to be initialized in?
 
@@ -36,9 +36,34 @@ Initialize the application under 'Development' environment? [yes|no]
 
 `Enter Yes and Press Enter`
 
+## DB changes
+
+Create DB named 'cigo-tracker' and upload file from /database/cigo-tracker.sql
+
+Open file '/cigo-tracker/common/config/main-local.php' and edit below code as needed
+
+'db' => [
+
+    'class' => 'yii\db\Connection',
+
+    'dsn' => 'mysql:host=localhost:8889;dbname=cigo-tracker',
+
+    'username' => 'root',
+
+    'password' => 'root',
+
+    'charset' => 'utf8',
+
+],
+```
 
 ## Run Project and open URL http://localhost:8080/
 
 ```php yii serve --docroot="frontend/web/"```
 
 `http://localhost:8080/`
+
+
+## Login Credentials
+username: cigotracker
+password: Cigo@123

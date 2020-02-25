@@ -13,6 +13,7 @@ use common\models\LoginForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
+use frontend\models\OrderForm;
 use frontend\models\ContactForm;
 
 /**
@@ -28,7 +29,7 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup'],
+                'only' => ['logout', 'signup', 'order'],
                 'rules' => [
                     [
                         'actions' => ['signup'],
@@ -36,7 +37,7 @@ class SiteController extends Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['logout'],
+                        'actions' => ['logout', 'order'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -143,6 +144,24 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    /**
+     * Order Management.
+     *
+     * @return mixed
+     */
+    public function actionOrder()
+    {
+        $model = new OrderForm();
+        if ($model->load(Yii::$app->request->post()) && $model->order()) {
+            Yii::$app->session->setFlash('success', 'Thank you for Order');
+            return $this->goHome();
+        }
+
+        return $this->render('order', [
+            'model' => $model,
+        ]);
     }
 
     /**
