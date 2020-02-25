@@ -8,19 +8,19 @@
 
 This is application for Cigo Tracker
 
-Project Setup
+# Project Setup
 -------------------
 
-###### Please open terminal and run below command to clone repo
+## Please open terminal and run below command to clone repo
 
 ```git clone https://github.com/brijal1987/cigo-tracker.git```
 
 
-###### Go to project folder
+## Go to project folder
 
 ```cd cigo-tracker```
 
-###### Initiallize developement files
+## Initiallize developement files
 
 ```php init```
 
@@ -36,7 +36,7 @@ Initialize the application under 'Development' environment? [yes|no]
 
 `Enter Yes and Press Enter`
 
-###### DB changes
+## DB changes
 
 Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sql*
 
@@ -58,13 +58,13 @@ Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sq
 ],
 ```
 
-###### Run Project and open URL http://localhost:8080/
+## Run Project and open URL http://localhost:8080/
 
 ```php yii serve --docroot="frontend/web/"```
 
 `http://localhost:8080/`
 
 
-###### Login Credentials
+## Login Credentials
 username: cigotracker
 password: Cigo@123
