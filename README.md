@@ -42,6 +42,7 @@ Create DB named 'cigo-tracker' and upload file from /database/cigo-tracker.sql
 
 Open file '/cigo-tracker/common/config/main-local.php' and edit below code as needed
 
+```
 'db' => [
 
     'class' => 'yii\db\Connection',
