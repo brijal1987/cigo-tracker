@@ -47,7 +47,7 @@ Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sq
 
     'class' => 'yii\db\Connection',
 
-    'dsn' => 'mysql:host=localhost:8889;dbname=cigo-tracker',
+    'dsn' => 'mysql:host=localhost;dbname=cigo-tracker',
 
     'username' => 'root',
 
@@ -66,5 +66,8 @@ Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sq
 
 
 ## Login Credentials
+
 username: cigotracker
+
 password: Cigo@123
+
