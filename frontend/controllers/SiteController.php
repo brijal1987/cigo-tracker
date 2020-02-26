@@ -155,12 +155,6 @@ class SiteController extends Controller
                 'countries' => $countries,
                 'orderTypes' => $orderTypes
             ]);
-            // if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            //     Yii::$app->session->setFlash('success', 'Thank you for Order');
-            //     return Yii::$app->getResponse()->redirect(Url::to('index.php?r=site/order'));
-
-            //     // return $this->goHome();
-            // }
         }
 
         return $this->render('order', [
@@ -177,16 +171,37 @@ class SiteController extends Controller
      */
     public function actionLoadorder()
     {
-        $orders = Order::Find()->all();
+        $orders = Order::Find()->orderBy([
+            'id' => SORT_DESC
+          ])->all();
         
         $request = \Yii::$app->getRequest();
         if ($request->isAjax) {
-            return $this->renderAjax('order-list', [
-                'orders' => $orders,
-            ]);
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'orders' => $orders
+            ];
         }
-        echo json_encode("Invalid Request");
-        exit;
+        return ["Invalid Request"];
+    }
+
+    /**
+     * Change Order Status.
+     *
+     * @return mixed
+     */
+    public function actionChangestatus()
+    {
+        $request = \Yii::$app->getRequest();
+        if ($request->isAjax) {
+            $order = Order::findOne($request->post()['orderId']);
+            $order->status = $request->post()['status'];
+            if ($order->save()) {
+                \Yii::$app->response->format = Response::FORMAT_JSON;
+                return ['order' => $order];
+            }
+        }
+        return ['Invalid Request'];
     }
 
 }

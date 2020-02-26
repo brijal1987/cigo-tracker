@@ -9,6 +9,7 @@ use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use frontend\assets\AppAsset;
 use common\widgets\Alert;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 ?>
@@ -22,6 +23,11 @@ AppAsset::register($this);
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
+    <script>
+        var changeStatusUrl = "<?php echo Yii::$app->getUrlManager()->createUrl('site/changestatus'); ?>";
+        var loadOrderUrl = "<?php echo Yii::$app->getUrlManager()->createUrl('site/loadorder'); ?>";
+        var webAssetsUrl = "<?= Url::to('@web/assets/') ?>";
+    </script>
 </head>
 <body>
 <?php $this->beginBody() ?>

@@ -18,6 +18,7 @@ class AppAsset extends AssetBundle
         'css/leaflet.css'
     ];
     public $js = [
+        'js/common.js',
         'js/leaflet.js'
     ];
     public $depends = [
