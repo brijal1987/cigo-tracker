@@ -1,4 +1,6 @@
 function previewmap(){
+    $("#map").html('<div class="loader"></div>');
+
     var data = $('#form-order').serialize();
 
     $.ajax({
@@ -8,31 +10,7 @@ function previewmap(){
         success: function (data) {
             if(data.success === true){
                 //add map
-                // var newMarker = new L.map('map').setView([data.geocode.lat, data.geocode.lng], 5);
-                var markerIcon, statusText;
-
-                if(data.order.status === 1){ //Pending
-                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/057-stopwatch.png'});
-                    statusText = "Pending";
-                }
-                else if(data.order.status == 2){ //Assigned
-                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/005-calendar.png'});
-                    statusText = "Assigned";
-                }
-                else if(data.order.status == 3){ //On Route
-                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/028-express-delivery.png'});
-                    statusText = "On Route";
-                }
-                else if(data.order.status == 4){ //Done
-                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/015-delivered.png'});
-                    statusText = "Done";
-                }
-                else if(data.order.status == 5){ //Cancelled
-                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/016-delivery-failed.png'});
-                    statusText = "Cancelled";
-                }
-                newMarker = new L.marker([data.geocode.lat, data.geocode.lng], {icon: markerIcon})
-                    .addTo(map).bindPopup(`${statusText}`);
+                loadSingleMap(data)
             }
             else {
                 if(data.error === "Error"){
@@ -40,6 +18,7 @@ function previewmap(){
                 } else {
                     toastr.error(data.error);
                 }
+                loadOrders();
             }
         }
     });
@@ -90,7 +69,7 @@ function loadOrders(order_by="", order=""){
 }
 
 function rendorOrder(orders, sort){
-    var output =  `<div class="table-responsive">
+    var output =  `
     <table class="table listing">
         <thead>
             <tr>
@@ -101,94 +80,98 @@ function rendorOrder(orders, sort){
             </tr>
         </thead>
     <tbody>`;
-    for(var i=0; i< orders.length; i++){
+    if(orders.length > 0) {
+        for(var i=0; i< orders.length; i++){
         output += `<tr class="row-class" id="row-class-${orders[i].id}">
                 <td class="text-left">${orders[i].first_name}</td>
                 <td class="text-left">${orders[i].last_name}</td>
                 <td class="text-left">${orders[i].schedule_date}</td>
                 <td class="text-left">`;
 
-                    var statusText = "Pending";
-                    var statusColor = " btn-default";
-                    var closedisabled = " disabled";
-                    if(orders[i].status === 1){ //Pending
-                        statusText = "Pending";
-                        statusColor = " btn-default";
-                        closedisabled = "";
-                    }
-                    else if(orders[i].status == 2){ //Assigned
-                        statusText = "Assigned";
-                        statusColor = " btn-primary";
-                        closedisabled = "";
-                    }
-                    else if(orders[i].status == 3){ //On Route
-                        statusText = "On Route";
-                        statusColor = " btn-warning";
-                    }
-                    else if(orders[i].status == 4){ //Done
-                        statusText = "Done";
-                        statusColor = " btn-success";
-                    }
-                    else if(orders[i].status == 5){ //Cancelled
-                        statusText = "Cancelled";
-                        statusColor = " btn-danger";
-                    }
-                    output += `<span class="listing-close">`;
-                    if(orders[i].status === 1 || orders[i].status === 2){ //Pending
-                        output += `<a data-toggle="modal" data-target="#exampleModal">
-                            <i class="fas fa-times-circle ${closedisabled}"></i>
-                        </a>
-                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Remove an Order</h5>
-                                </div>
-                                <div class="modal-body">
-                                    Are you Sure you want to remove Order?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" onclick="removeOrder(${orders[i].id})">Remove Order</button>
-                                </div>
-                                </div>
+                var statusText = "Pending";
+                var statusColor = " btn-default";
+                var closedisabled = " disabled";
+                if(orders[i].status === 1){ //Pending
+                    statusText = "Pending";
+                    statusColor = " btn-default";
+                    closedisabled = "";
+                }
+                else if(orders[i].status == 2){ //Assigned
+                    statusText = "Assigned";
+                    statusColor = " btn-primary";
+                    closedisabled = "";
+                }
+                else if(orders[i].status == 3){ //On Route
+                    statusText = "On Route";
+                    statusColor = " btn-warning";
+                }
+                else if(orders[i].status == 4){ //Done
+                    statusText = "Done";
+                    statusColor = " btn-success";
+                }
+                else if(orders[i].status == 5){ //Cancelled
+                    statusText = "Cancelled";
+                    statusColor = " btn-danger";
+                }
+                output += `<span class="listing-close">`;
+                if(orders[i].status === 1 || orders[i].status === 2){ //Pending
+                    output += `<a data-toggle="modal" data-target="#exampleModal">
+                        <i class="fas fa-times-circle ${closedisabled}"></i>
+                    </a>
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Remove an Order</h5>
                             </div>
-                        </div>`;
-                    }
-                    else {
-                        output += `<i class="fas fa-times-circle ${closedisabled}"></i>`;
-                    }
-                    output += `</span>
+                            <div class="modal-body">
+                                Are you Sure you want to remove Order?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" onclick="removeOrder(${orders[i].id})">Remove Order</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+                else {
+                    output += `<i class="fas fa-times-circle ${closedisabled}"></i>`;
+                }
+                output += `</span>
 
-                    <div class="dropdown">
-                        <button class="btn ${statusColor} dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            ${statusText}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu">`;
-                        if(orders[i].status !== 1) {
-                            output += `<li><a onclick="changeStatus(${orders[i].id}, 1)" href="javascript:void(0)">Pending</a></li>`;
-                        }
-                        if(orders[i].status !== 2) {
-                            output += `<li><a onclick="changeStatus(${orders[i].id}, 2)" href="javascript:void(0)">Assigned</a></li>`;
-                        }
-                        if(orders[i].status !== 3) {
-                            output += `<li><a onclick="changeStatus(${orders[i].id}, 3)" href="javascript:void(0)">On Route</a></li>`;
-                        }
-                        if(orders[i].status !== 4) {
-                            output += `<li><a onclick="changeStatus(${orders[i].id}, 4)" href="javascript:void(0)">Done</a></li>`;
-                        }
-                        if(orders[i].status !== 5) {
-                            output += `<li><a onclick="changeStatus(${orders[i].id}, 5)" href="javascript:void(0)">Cancelled</a></li>`;
-                        }
-                        output += `</ul>
-                    </div>
-                </td>
-            </tr>`
-           }
-        output += `</tbody>
-     </table>
-    </div>`;
+                <div class="dropdown">
+                    <button class="btn ${statusColor} dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        ${statusText}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">`;
+                    if(orders[i].status !== 1) {
+                        output += `<li><a onclick="changeStatus(${orders[i].id}, 1)" href="javascript:void(0)">Pending</a></li>`;
+                    }
+                    if(orders[i].status !== 2) {
+                        output += `<li><a onclick="changeStatus(${orders[i].id}, 2)" href="javascript:void(0)">Assigned</a></li>`;
+                    }
+                    if(orders[i].status !== 3) {
+                        output += `<li><a onclick="changeStatus(${orders[i].id}, 3)" href="javascript:void(0)">On Route</a></li>`;
+                    }
+                    if(orders[i].status !== 4) {
+                        output += `<li><a onclick="changeStatus(${orders[i].id}, 4)" href="javascript:void(0)">Done</a></li>`;
+                    }
+                    if(orders[i].status !== 5) {
+                        output += `<li><a onclick="changeStatus(${orders[i].id}, 5)" href="javascript:void(0)">Cancelled</a></li>`;
+                    }
+                    output += `</ul>
+                </div>
+            </td>
+        </tr>`
+        }
+    }
+    else {
+        output += `<tr><td colspan="4">No Orders Found.</td></tr>`;
+    }
+    output += `</tbody>
+        </table>`;
     $("#order-listing").html(output);
 }
 
@@ -234,7 +217,7 @@ function loadMap(orders){
             statusText = "Cancelled";
         }
         var marker = L.marker([orders[i].lat, orders[i].lon], {icon: markerIcon})
-            .addTo(map).bindPopup(`${statusText}`);
+            .addTo(map).bindPopup(`Order Type: ${statusText}`);
         marker.orderId = orders[i].id;
         marker.on('click', onMarkerClick);
 
@@ -248,4 +231,30 @@ function loadMap(orders){
         //     marker.click()
         // });
     }
+}
+
+function loadSingleMap(data){
+    var container = L.DomUtil.get('map');
+    if(container != null){
+        container._leaflet_id = null;
+    }
+    var map = L.map('map').setView([data.geocode.lat, data.geocode.lng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+    var LeafIcon = L.Icon.extend({
+        options: {
+            iconSize:     [50, 50],
+            iconAnchor:   [22, 94],
+            popupAnchor:  [-3, -76]
+        }
+    });
+    var markerIcon, statusText;
+
+    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/057-stopwatch.png'});
+    statusText = "Pending";
+
+    L.marker([data.geocode.lat, data.geocode.lng], {icon: markerIcon})
+        .addTo(map).bindPopup(`Order Type: ${statusText}`);
 }

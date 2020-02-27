@@ -23,11 +23,11 @@ class Order extends ActiveRecord
         return [
             ['first_name', 'trim'],
             ['first_name', 'required'],
-            ['first_name', 'match' ,'pattern'=>'/^[A-Za-z0-9_]+$/u',
+            ['first_name', 'match' ,'pattern'=>'/^[A-Za-z0-9_ ]+$/u',
                 'message'=> 'Firstname can contain only alphanumeric characters and hyphens(-).'],
 
             ['last_name', 'trim'],
-            ['last_name', 'match' ,'pattern'=>'/^[A-Za-z0-9_]+$/u',
+            ['last_name', 'match' ,'pattern'=>'/^[A-Za-z0-9_ ]+$/u',
                 'message'=> 'Lastname can contain only alphanumeric characters and hyphens(-).'],
 
             ['email', 'trim'],

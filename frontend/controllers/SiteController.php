@@ -156,20 +156,29 @@ class SiteController extends Controller
                     $request->post()['Order']['state'] . " ".
                     $request->post()['Order']['zip_code'] . " ". $country_name;
                     $geoResponse = $geocoder->geocode($address);
-                    if(isset($geoResponse->results)){
+                    if(isset($geoResponse->results) && $geoResponse->results!= false){
+                        \Yii::$app->response->format = Response::FORMAT_JSON;
+
                         $model->status = 1;
                         $model->lat = $geoResponse->results[0]->location->lat;
                         $model->lon = $geoResponse->results[0]->location->lng;
                         $model->schedule_date = $request->post()['schedule_date'];
-                        \Yii::$app->response->format = Response::FORMAT_JSON;
-                        if($model->validate())
+                        if($model->validate()){
                             return ['success' => $model->save()];
+                        }
+
+                        return $this->renderAjax('order', [
+                            'model' => $model,
+                            'countries' => $countries,
+                            'orderTypes' => $orderTypes
+                        ]);
                     }
-                    return $this->renderAjax('order', [
-                        'model' => $model,
-                        'countries' => $countries,
-                        'orderTypes' => $orderTypes
-                    ]);
+                    else{
+                        \Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [
+                            'error' => "Enter Proper geolocation with country Canada, United States and Mexico"
+                        ];
+                    }
                 }
             }
 
@@ -217,14 +226,17 @@ class SiteController extends Controller
                     $request->post()['Order']['state'] . " ".
                     $request->post()['Order']['zip_code'] . " ". $country_name;
                     $geoResponse = $geocoder->geocode($address);
-                    if(isset($geoResponse->results)){
-                        \Yii::$app->response->format = Response::FORMAT_JSON;
+                    \Yii::$app->response->format = Response::FORMAT_JSON;
+                    if(isset($geoResponse->results) && $geoResponse->results!= false){
                         return [
                             'success' => true,
-                            'order' => $request->post()['Order'],
                             'geocode' => $geoResponse->results[0]->location
                         ];
                     }
+                    return [
+                        'error' => "Enter Proper geolocation with country Canada, United States and Mexico"
+                    ];
+
                 }
             }
         } catch (Geocodio\Exceptions\GeocodioException $exception) {
