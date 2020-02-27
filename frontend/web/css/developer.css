@@ -16,6 +16,7 @@
     max-height: 364px;
     overflow-y: scroll;
     position: relative;
+    color: #000;
 }
 .listing .dropdown{
     float: right;
@@ -67,3 +68,11 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+th.asc:after {
+    content: "\e155";
+}
+
+th.desc:after {
+    content: "\e156";
+}
+.sort { cursor: pointer;}

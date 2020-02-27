@@ -25,7 +25,9 @@ AppAsset::register($this);
     <?php $this->head() ?>
     <script>
         var changeStatusUrl = "<?php echo Yii::$app->getUrlManager()->createUrl('site/changestatus'); ?>";
+        var removeOrderUrl = "<?php echo Yii::$app->getUrlManager()->createUrl('site/removeorder'); ?>";
         var loadOrderUrl = "<?php echo Yii::$app->getUrlManager()->createUrl('site/loadorder'); ?>";
+        var previewMapUrl = "<?php echo Yii::$app->getUrlManager()->createUrl('site/previewmap'); ?>";
         var webAssetsUrl = "<?= Url::to('@web/assets/') ?>";
     </script>
 </head>

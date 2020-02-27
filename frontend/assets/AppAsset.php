@@ -12,12 +12,13 @@ class AppAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
+        'css/toastr.min.css',
         'css/site.css',
-        'css/all.css',
         'css/developer.css',
         'css/leaflet.css'
     ];
     public $js = [
+        'js/toastr.min.js',
         'js/common.js',
         'js/leaflet.js'
     ];

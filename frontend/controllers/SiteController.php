@@ -14,7 +14,7 @@ use common\models\OrderType;
 use yii\helpers\Url;
 use yii\web\Response;
 use yii\helpers\ArrayHelper;
-
+use Geocodio;
 /**
  * Site controller
  */
@@ -129,39 +129,112 @@ class SiteController extends Controller
      */
     public function actionOrder()
     {
-        $countries = Country::Find()
-        ->where(['status' => Country::STATUS_ACTIVE])
-        ->all();
+        try { 
+            $countries = Country::Find()
+            ->where(['status' => Country::STATUS_ACTIVE])
+            ->all();
 
-        $orderTypes = OrderType::Find()
-        ->where(['status' => OrderType::STATUS_ACTIVE])
-        ->all();
+            $orderTypes = OrderType::Find()
+            ->where(['status' => OrderType::STATUS_ACTIVE])
+            ->all();
+            $model = new Order();
 
-        $model = new Order();
-        $model->status = 1;
-        $model->lat = 1;
-        $model->lon = 1;
-        $model->schedule_date = Yii::$app->request->post()['schedule_date'];
-        $request = \Yii::$app->getRequest();
-        if ($request->isAjax) {
+            $request = \Yii::$app->getRequest();
+            if ($request->isAjax) {
 
-            if ($request->isPost && $model->load($request->post())) {
-                \Yii::$app->response->format = Response::FORMAT_JSON;
-                if($model->validate())
-                    return ['success' => $model->save()];
+                if ($request->isPost && $model->load($request->post())) {
+                    $geocoder = new Geocodio\Geocodio();
+                    $geocoder->setApiKey('e65be9046f4064e5056cf69565eee5fe955d5ee');
+                    $country_name = "";
+                    foreach($countries as $country){
+                        if($country->id == $request->post()['country_id']){
+                            $country_name = $country->name;
+                        }
+                    }
+                    $address = $request->post()['Order']['street_address'] ." ".
+                    $request->post()['Order']['city'] . " ".
+                    $request->post()['Order']['state'] . " ".
+                    $request->post()['Order']['zip_code'] . " ". $country_name;
+                    $geoResponse = $geocoder->geocode($address);
+                    if(isset($geoResponse->results)){
+                        $model->status = 1;
+                        $model->lat = $geoResponse->results[0]->location->lat;
+                        $model->lon = $geoResponse->results[0]->location->lng;
+                        $model->schedule_date = $request->post()['schedule_date'];
+                        \Yii::$app->response->format = Response::FORMAT_JSON;
+                        if($model->validate())
+                            return ['success' => $model->save()];
+                    }
+                    return $this->renderAjax('order', [
+                        'model' => $model,
+                        'countries' => $countries,
+                        'orderTypes' => $orderTypes
+                    ]);
+                }
             }
-            return $this->renderAjax('order', [
+
+            return $this->render('order', [
                 'model' => $model,
                 'countries' => $countries,
                 'orderTypes' => $orderTypes
             ]);
-        }
+        } catch (Geocodio\Exceptions\GeocodioException $exception) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
 
-        return $this->render('order', [
-            'model' => $model,
-            'countries' => $countries,
-            'orderTypes' => $orderTypes
-        ]);
+            return [
+                'error' => $exception->getMessage()
+            ];
+
+        }
+    }
+
+    /**
+     * Order Management.
+     *
+     * @return mixed
+     */
+    public function actionPreviewmap()
+    {
+        try {
+
+            $request = \Yii::$app->getRequest();
+            if ($request->isAjax) {
+                if ($request->isPost) {
+                    $countries = Country::Find()
+                    ->where(['status' => Country::STATUS_ACTIVE])
+                    ->all();
+
+                    $geocoder = new Geocodio\Geocodio();
+                    $geocoder->setApiKey('e65be9046f4064e5056cf69565eee5fe955d5ee');
+                    $country_name = "";
+                    foreach($countries as $country){
+                        if($country->id == $request->post()['country_id']){
+                            $country_name = $country->name;
+                        }
+                    }
+                    $address = $request->post()['Order']['street_address'] ." ".
+                    $request->post()['Order']['city'] . " ".
+                    $request->post()['Order']['state'] . " ".
+                    $request->post()['Order']['zip_code'] . " ". $country_name;
+                    $geoResponse = $geocoder->geocode($address);
+                    if(isset($geoResponse->results)){
+                        \Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [
+                            'success' => true,
+                            'order' => $request->post()['Order'],
+                            'geocode' => $geoResponse->results[0]->location
+                        ];
+                    }
+                }
+            }
+        } catch (Geocodio\Exceptions\GeocodioException $exception) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            return [
+                'error' => $exception->getMessage()
+            ];
+
+        }
     }
 
     /**
@@ -171,15 +244,23 @@ class SiteController extends Controller
      */
     public function actionLoadorder()
     {
-        $orders = Order::Find()->orderBy([
-            'id' => SORT_DESC
-          ])->all();
-        
         $request = \Yii::$app->getRequest();
         if ($request->isAjax) {
+            $sort = [
+                'id' => SORT_DESC
+            ];
+            if($request->get()['order_by'] != ""){
+                $sort = [
+                    $request->get()['order_by'] => ($request->get()['order']=='4' ? SORT_ASC: SORT_DESC)
+                ];
+            }
+
+            $orders = Order::Find()->orderBy($sort)->all();
+
             \Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                'orders' => $orders
+                'orders' => $orders,
+                'sort' => $sort
             ];
         }
         return ["Invalid Request"];
@@ -199,6 +280,24 @@ class SiteController extends Controller
             if ($order->save()) {
                 \Yii::$app->response->format = Response::FORMAT_JSON;
                 return ['order' => $order];
+            }
+        }
+        return ['Invalid Request'];
+    }
+
+    /**
+     * Remove Order
+     *
+     * @return mixed
+     */
+    public function actionRemoveorder()
+    {
+        $request = \Yii::$app->getRequest();
+        if ($request->isAjax) {
+            $order = Order::findOne($request->post()['orderId']);
+            if ($order->delete()) {
+                \Yii::$app->response->format = Response::FORMAT_JSON;
+                return ['success' => 1];
             }
         }
         return ['Invalid Request'];

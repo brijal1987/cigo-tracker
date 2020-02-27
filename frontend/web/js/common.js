@@ -1,3 +1,65 @@
+function previewmap(){
+    var data = $('#form-order').serialize();
+
+    $.ajax({
+        url: previewMapUrl,
+        type: 'POST',
+        data: data,
+        success: function (data) {
+            if(data.success === true){
+                //add map
+                // var newMarker = new L.map('map').setView([data.geocode.lat, data.geocode.lng], 5);
+                var markerIcon, statusText;
+
+                if(data.order.status === 1){ //Pending
+                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/057-stopwatch.png'});
+                    statusText = "Pending";
+                }
+                else if(data.order.status == 2){ //Assigned
+                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/005-calendar.png'});
+                    statusText = "Assigned";
+                }
+                else if(data.order.status == 3){ //On Route
+                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/028-express-delivery.png'});
+                    statusText = "On Route";
+                }
+                else if(data.order.status == 4){ //Done
+                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/015-delivered.png'});
+                    statusText = "Done";
+                }
+                else if(data.order.status == 5){ //Cancelled
+                    markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/016-delivery-failed.png'});
+                    statusText = "Cancelled";
+                }
+                newMarker = new L.marker([data.geocode.lat, data.geocode.lng], {icon: markerIcon})
+                    .addTo(map).bindPopup(`${statusText}`);
+            }
+            else {
+                if(data.error === "Error"){
+                    toastr.error('Something went wrong.');
+                } else {
+                    toastr.error(data.error);
+                }
+            }
+        }
+    });
+}
+function removeOrder(orderId){
+    $("#exampleModal").hide(); $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open')
+    $.ajax({
+        url: removeOrderUrl,
+        type: 'POST',
+        data: {'orderId': orderId},
+        success: function () {
+            toastr.success('Order Removed Successfully');
+            loadOrders();
+        }
+    });
+}
+function resetOrder(){
+    loadOrders();
+}
 function changeStatus(orderId, status){
     $.ajax({
         url: changeStatusUrl,
@@ -6,19 +68,19 @@ function changeStatus(orderId, status){
         success: function (data) {
             loadOrders();
         }
-     });
+    });
 }
-function loadOrders(){
+function loadOrders(order_by="", order=""){
     $("#order-listing").html('<div class="loader"></div>');
     setTimeout(function () {
 
         $.ajax({
             url: loadOrderUrl,
             type: 'GET',
-            data: {},
+            data: {order_by:order_by, order:order},
             dataType: "json",
             success: function (data) {
-                rendorOrder(data.orders)
+                rendorOrder(data.orders, data.sort)
                 $("#map").html('<div class="loader"></div>');
                 loadMap(data.orders);
             }
@@ -27,14 +89,14 @@ function loadOrders(){
 
 }
 
-function rendorOrder(orders){
+function rendorOrder(orders, sort){
     var output =  `<div class="table-responsive">
     <table class="table listing">
         <thead>
             <tr>
-                <th class="text-left">First Name</th>
-                <th class="text-left">Last Name</th>
-                <th class="text-left">Date</th>
+                <th class="text-left"><a class="sort" onclick="loadOrders('first_name', '${sort.first_name === 4 ? 3 : 4}')">First Name</a><i class="fas ${sort.first_name === 3 ? 'fa-sort-down': sort.first_name === 4 ? 'fa-sort-up':''}"></i></th>
+                <th class="text-left"><a class="sort" onclick="loadOrders('last_name', '${sort.last_name === 4 ? 3 : 4}')">Last Name</a><i class="fas ${sort.last_name === 3 ? 'fa-sort-down': sort.last_name === 4 ? 'fa-sort-up':''}"></i></th>
+                <th class="text-left"><a class="sort" onclick="loadOrders('schedule_date', '${sort.schedule_date === 4 ? 3 : 4}')">Date</a><i class="fas ${sort.schedule_date === 3 ? 'fa-sort-down': sort.schedule_date === 4 ? 'fa-sort-up':''}"></i></th>
                 <th class="text-left"></th>
             </tr>
         </thead>
@@ -71,7 +133,33 @@ function rendorOrder(orders){
                         statusText = "Cancelled";
                         statusColor = " btn-danger";
                     }
-                    output += `<span class="listing-close"><i class="fas fa-times-circle ${closedisabled}"></i></span>
+                    output += `<span class="listing-close">`;
+                    if(orders[i].status === 1 || orders[i].status === 2){ //Pending
+                        output += `<a data-toggle="modal" data-target="#exampleModal">
+                            <i class="fas fa-times-circle ${closedisabled}"></i>
+                        </a>
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Remove an Order</h5>
+                                </div>
+                                <div class="modal-body">
+                                    Are you Sure you want to remove Order?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" onclick="removeOrder(${orders[i].id})">Remove Order</button>
+                                </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                    else {
+                        output += `<i class="fas fa-times-circle ${closedisabled}"></i>`;
+                    }
+                    output += `</span>
+
                     <div class="dropdown">
                         <button class="btn ${statusColor} dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             ${statusText}
@@ -123,22 +211,30 @@ function loadMap(orders){
         }
     });
     for(var i=0; i< orders.length; i++){
+        var markerIcon, statusText;
+
         if(orders[i].status === 1){ //Pending
-            var markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/057-stopwatch.png'});
+            markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/057-stopwatch.png'});
+            statusText = "Pending";
         }
         else if(orders[i].status == 2){ //Assigned
-            var markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/005-calendar.png'});
+            markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/005-calendar.png'});
+            statusText = "Assigned";
         }
         else if(orders[i].status == 3){ //On Route
-            var markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/028-express-delivery.png'});
+            markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/028-express-delivery.png'});
+            statusText = "On Route";
         }
         else if(orders[i].status == 4){ //Done
-            var markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/015-delivered.png'});
+            markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/015-delivered.png'});
+            statusText = "Done";
         }
         else if(orders[i].status == 5){ //Cancelled
-            var markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/016-delivery-failed.png'});
+            markerIcon = new  LeafIcon({iconUrl: webAssetsUrl + 'logistics/016-delivery-failed.png'});
+            statusText = "Cancelled";
         }
-        var marker = L.marker([orders[i].lat, orders[i].lon], {icon: markerIcon}).addTo(map);
+        var marker = L.marker([orders[i].lat, orders[i].lon], {icon: markerIcon})
+            .addTo(map).bindPopup(`${statusText}`);
         marker.orderId = orders[i].id;
         marker.on('click', onMarkerClick);
 
@@ -148,5 +244,8 @@ function loadMap(orders){
             $(`#row-class-${e.target.orderId}`).get(0).scrollIntoView({behavior: "smooth", block: "start"});
         }
 
+        // $(`#row-class-${orders[i].id}`).click(function(){
+        //     marker.click()
+        // });
     }
 }

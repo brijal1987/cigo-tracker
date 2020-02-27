@@ -13,7 +13,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
 
-<div class="site-signup">
+<div class="site-order">
     <div class="row">
         <div class="col-lg-6">
             <div class="panel panel-default box-title">
@@ -103,10 +103,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     </div>
                     <div class="col-lg-12">
                         <div class="col-lg-6 pull-left">
-                        <?= Html::submitButton('Preview Location', ['class' => 'btn btn-default', 'name' => 'preview-button']) ?>
+                        <?= Html::a('Preview Location', null , ['class' => 'btn btn-default', 'href'=> 'javascript:void(0);', 'onclick' => 'previewmap()']) ?>
                         </div>
                         <div class="col-lg-6 pull-right">
-                        <?= Html::submitButton('Cancel', ['class' => 'btn btn-danger', 'name' => 'cancel-button']) ?>
+                        <?= Html::resetButton('Cancel', ['class' => 'btn btn-danger', 'name' => 'cancel-button', 'onclick' => 'resetOrder()', 'type'=>'button']) ?>
                         <?= Html::submitButton('Submit', ['class' => 'btn btn-success', 'name' => 'submit-button']) ?>
                         </div>
                     </div>
@@ -146,7 +146,15 @@ $(document).on("beforeSubmit", "#form-order", function () {
         success: function (data) {
             if(data.success == true){
                 $('#form-order')[0].reset();
+                toastr.success('Order Added Successfully');
                 loadOrders();
+            }
+            else {
+                if(data.error === "Error"){
+                    toastr.error('Something went wrong.');
+                } else {
+                    toastr.error(data.error);
+                }
             }
         }
      });
