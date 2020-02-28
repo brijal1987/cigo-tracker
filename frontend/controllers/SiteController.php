@@ -230,7 +230,8 @@ class SiteController extends Controller
                     if(isset($geoResponse->results) && $geoResponse->results!= false){
                         return [
                             'success' => true,
-                            'geocode' => $geoResponse->results[0]->location
+                            'geocode' => $geoResponse->results[0]->location,
+                            'order' => $request->post()['Order']
                         ];
                     }
                     return [
@@ -268,7 +269,6 @@ class SiteController extends Controller
             }
 
             $orders = Order::Find()->orderBy($sort)->all();
-
             \Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'orders' => $orders,

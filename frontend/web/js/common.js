@@ -252,8 +252,7 @@ function loadMap(orders){
             statusText = "Cancelled";
         }
         var marker = L.marker([orders[i].lat, orders[i].lon], {icon: markerIcon})
-            .bindPopup(`Order Type: ${statusText}`);
-            //.addTo(map)
+            .bindPopup(generate_map_popup_content(orders[i], statusText));
         marker.orderId = orders[i].id;
         marker.on('click', onMarkerClick);
 
@@ -297,5 +296,15 @@ function loadSingleMap(data){
     statusText = "Pending";
 
     L.marker([data.geocode.lat, data.geocode.lng], {icon: markerIcon})
-        .addTo(map).bindPopup(`Order Type: ${statusText}`);
+        .addTo(map).bindPopup(generate_map_popup_content(data.order, statusText));
+}
+
+function generate_map_popup_content(order, status){
+    return `
+        ${order.street_address ? order.street_address : ''}
+        ${order.city ? ', ' + order.city : ''}
+        ${order.state ? ', ' + order.state : ''}
+        ${order.zip_code ? ', ' + order.zip_code : ''}
+        <br/><br/>
+        <b>Order Type:</b> ${status}`;
 }
