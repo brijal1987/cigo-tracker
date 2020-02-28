@@ -60,7 +60,7 @@ Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sq
 
 **Open file *'/cigo-tracker/common/config/params.php'* and put your api key for https://www.geocod.io/**
 
-```GEO_CODIO_API_KEY=XXXXXXXXXXXXX```
+```GEO_CODIO_API_KEY=e65be9046f4064e5056cf69565eee5fe955d5ee```
 
 
 ## Run Project and open URL http://localhost:8080/
