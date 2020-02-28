@@ -20,6 +20,11 @@ This is application for Cigo Tracker
 
 ```cd cigo-tracker```
 
+## Install All Dependencies
+
+```composer update```
+
+
 ## Initiallize developement files
 
 ```php init```
