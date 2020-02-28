@@ -144,7 +144,7 @@ class SiteController extends Controller
 
                 if ($request->isPost && $model->load($request->post())) {
                     $geocoder = new Geocodio\Geocodio();
-                    $geocoder->setApiKey('e65be9046f4064e5056cf69565eee5fe955d5ee');
+                    $geocoder->setApiKey(Yii::$app->params['GEO_CODIO_API_KEY']);
                     $country_name = "";
                     foreach($countries as $country){
                         if($country->id == $request->post()['country_id']){
@@ -214,7 +214,7 @@ class SiteController extends Controller
                     ->all();
 
                     $geocoder = new Geocodio\Geocodio();
-                    $geocoder->setApiKey('e65be9046f4064e5056cf69565eee5fe955d5ee');
+                    $geocoder->setApiKey(Yii::$app->params['GEO_CODIO_API_KEY']);
                     $country_name = "";
                     foreach($countries as $country){
                         if($country->id == $request->post()['country_id']){

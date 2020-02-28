@@ -58,6 +58,11 @@ Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sq
 ],
 ```
 
+**Open file *'/cigo-tracker/common/config/params.php'* and put your api key for https://www.geocod.io/**
+
+```GEO_CODIO_API_KEY=XXXXXXXXXXXXX```
+
+
 ## Run Project and open URL http://localhost:8080/
 
 ```php yii serve --docroot="frontend/web/"```

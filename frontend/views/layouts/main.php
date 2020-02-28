@@ -48,8 +48,8 @@ AppAsset::register($this);
         ['label' => 'Home', 'url' => ['/site/index']],
         ['label' => 'About', 'url' => ['/site/about']],
     ];
+    $menuItems[] = ['label' => 'Order', 'url' => ['/site/order']];
     if (Yii::$app->user->isGuest) {
-        $menuItems[] = ['label' => 'Order', 'url' => ['/site/order']];
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     } else {
         $menuItems[] = '<li>'
@@ -79,7 +79,7 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; Dev Team @ <?= $appName; ?> <?= date('Y') ?></p>
+        <p class="pull-left">&copy; Dev Team of <?= $appName; ?> <?= date('Y') ?></p>
 
         <p class="pull-right">Powered By <a target="_blank" href="https://cigotracker.com/"><?= $appName; ?></a></p>
     </div>

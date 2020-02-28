@@ -15,12 +15,15 @@ class AppAsset extends AssetBundle
         'css/toastr.min.css',
         'css/site.css',
         'css/developer.css',
-        'css/leaflet.css'
+        'css/leaflet.css',
+        'css/MarkerCluster.css',
+        'css/MarkerCluster.Default.css'
     ];
     public $js = [
         'js/toastr.min.js',
         'js/common.js',
-        'js/leaflet.js'
+        'js/leaflet-src.js',
+        'js/leaflet.markercluster-src.js'
     ];
     public $depends = [
         'yii\web\YiiAsset',

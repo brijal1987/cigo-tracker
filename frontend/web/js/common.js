@@ -10,7 +10,6 @@ $(document).on("beforeSubmit", "#form-order", function (e) {
         type: 'POST',
         data: data,
         success: function (data) {
-            $("#submit-button").attr("disabled", false);
             if(data.success == true){
                 $('#form-order')[0].reset();
                 toastr.success('Order Added Successfully');
@@ -23,9 +22,9 @@ $(document).on("beforeSubmit", "#form-order", function (e) {
                     toastr.error(data.error);
                 }
             }
+            $("#submit-button").attr("disabled", false);
         }
      });
-     $("#submit-button").attr("disabled", false);
      return false;
 });
 
@@ -212,10 +211,15 @@ function loadMap(orders){
     if(container != null){
         container._leaflet_id = null;
     }
-    var map = L.map('map').setView([43.64701, -79.39425], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Points &copy 2012 LINZ'
+    }),
+    latlng = L.latLng(43.64701, -79.39425);
+
+    var map = L.map('map', {center: latlng, zoom: 4, layers: [tiles]});
+
+    var markers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
 
     var LeafIcon = L.Icon.extend({
         options: {
@@ -248,7 +252,8 @@ function loadMap(orders){
             statusText = "Cancelled";
         }
         var marker = L.marker([orders[i].lat, orders[i].lon], {icon: markerIcon})
-            .addTo(map).bindPopup(`Order Type: ${statusText}`);
+            .bindPopup(`Order Type: ${statusText}`);
+            //.addTo(map)
         marker.orderId = orders[i].id;
         marker.on('click', onMarkerClick);
 
@@ -258,10 +263,15 @@ function loadMap(orders){
             $(`#row-class-${e.target.orderId}`).get(0).scrollIntoView({behavior: "smooth", block: "start"});
         }
 
+        //Trying to set marker on row click
         // $(`#row-class-${orders[i].id}`).click(function(){
         //     marker.click()
         // });
+        markers.addLayer(marker);
+
     }
+    map.addLayer(markers);
+
 }
 
 function loadSingleMap(data){
