@@ -22,7 +22,7 @@ This is application for Cigo Tracker
 
 ## Install All Dependencies
 
-```composer update```
+```composer install```
 
 
 ## Initiallize developement files
@@ -45,7 +45,7 @@ Initialize the application under 'Development' environment? [yes|no]
 
 Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sql*
 
-**Open file *'/cigo-tracker/common/config/main-local.php'* and edit below code as needed**
+**Open file *'/cigo-tracker/common/config/main-local.php'* and edit below code and set your db credentials as needed**
 
 ```
 'db' => [
@@ -56,7 +56,7 @@ Create DB named *'cigo-tracker'* and upload file from */database/cigo-tracker.sq
 
     'username' => 'root',
 
-    'password' => 'root',
+    'password' => '',
 
     'charset' => 'utf8',
 
