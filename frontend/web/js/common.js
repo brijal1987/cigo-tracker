@@ -1,3 +1,34 @@
+$(document).on("beforeSubmit", "#form-order", function (e) {
+//stop submitting the form to see the disabled button effect
+    e.preventDefault();
+
+    //disable the submit button
+    $("#submit-button").attr("disabled", true);
+    var data = $('#form-order').serialize();
+    $.ajax({
+        url: $('#form-order').attr('action'),
+        type: 'POST',
+        data: data,
+        success: function (data) {
+            $("#submit-button").attr("disabled", false);
+            if(data.success == true){
+                $('#form-order')[0].reset();
+                toastr.success('Order Added Successfully');
+                loadOrders();
+            }
+            else {
+                if(data.error === "Error"){
+                    toastr.error('Something went wrong.');
+                } else {
+                    toastr.error(data.error);
+                }
+            }
+        }
+     });
+     $("#submit-button").attr("disabled", false);
+     return false;
+});
+
 function previewmap(){
     $("#map").html('<div class="loader"></div>');
 

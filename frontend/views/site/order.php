@@ -107,7 +107,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>
                         <div class="col-lg-6 pull-right">
                         <?= Html::resetButton('Cancel', ['class' => 'btn btn-danger', 'name' => 'cancel-button', 'onclick' => 'resetOrder()', 'type'=>'button']) ?>
-                        <?= Html::submitButton('Submit', ['class' => 'btn btn-success', 'name' => 'submit-button']) ?>
+                        <?= Html::submitButton('Submit', ['class' => 'btn btn-success', 'name' => 'submit-button', 'id'=> 'submit-button']) ?>
                         </div>
                     </div>
                     <?php ActiveForm::end(); ?>
@@ -136,31 +136,5 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php JSRegister::begin(); ?>
 <script>
 loadOrders();
-$(document).on("beforeSubmit", "#form-order", function () {
-
-    var data = $('#form-order').serialize();
-    $.ajax({
-        url: $('#form-order').attr('action'),
-        type: 'POST',
-        data: data,
-        success: function (data) {
-            if(data.success == true){
-                $('#form-order')[0].reset();
-                toastr.success('Order Added Successfully');
-                loadOrders();
-            }
-            else {
-                if(data.error === "Error"){
-                    toastr.error('Something went wrong.');
-                } else {
-                    toastr.error(data.error);
-                }
-            }
-        }
-     });
-     return false;
-});
-
 </script>
 <?php JSRegister::end(); ?>
-
