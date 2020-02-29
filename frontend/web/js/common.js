@@ -100,7 +100,7 @@ function loadOrders(order_by="", order=""){
 
 function rendorOrder(orders, sort){
     var output =  `
-    <table class="table listing">
+    <table class="table listing fixed_headers">
         <thead>
             <tr>
                 <th class="text-left"><a class="sort" onclick="loadOrders('first_name', '${sort.first_name === 4 ? 3 : 4}')">First Name</a><i class="fas ${sort.first_name === 3 ? 'fa-sort-down': sort.first_name === 4 ? 'fa-sort-up':''}"></i></th>

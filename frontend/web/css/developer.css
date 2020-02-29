@@ -13,12 +13,57 @@
     color:#6495ED;
 }
 #order-listing {
-    min-height: 363px;
-    max-height: 364px;
-    overflow-y: scroll;
+    /* min-height: 163px;
+    max-height: 164px;
+    overflow-y: scroll; */
     position: relative;
     color: #000;
 }
+
+.fixed_headers {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+.fixed_headers th {
+    text-decoration: underline;
+}
+.fixed_headers th,
+.fixed_headers td {
+    padding: 5px;
+    text-align: left;
+}
+.fixed_headers td:nth-child(1),
+.fixed_headers th:nth-child(1) {
+    min-width: 100px;
+}
+.fixed_headers td:nth-child(2),
+.fixed_headers th:nth-child(2) {
+    min-width: 100px;
+}
+.fixed_headers td:nth-child(3),
+.fixed_headers th:nth-child(3) {
+    width: 150px;
+}
+.fixed_headers td:nth-child(4),
+.fixed_headers th:nth-child(4) {
+    width: 250px;
+}
+.fixed_headers thead a {
+    color: #6495ED;
+    text-decoration: none;
+}
+.fixed_headers thead tr {
+    display: block;
+    position: relative;
+}
+.fixed_headers tbody {
+    display: block;
+    overflow: auto;
+    width: 100%;
+    min-height: 273px;
+    height: 274px;
+}
+
 .listing .dropdown{
     float: right;
     width: 100px;

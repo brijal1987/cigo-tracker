@@ -67,7 +67,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                     'options' => ['placeholder' => 'Select schedule date ...'],
                                     'pluginOptions' => [
                                         'format' => 'yyyy-mm-dd',
-                                        'todayHighlight' => true
+                                        'todayHighlight' => true,
+                                        'autoclose' => true,
                                     ],
                                     'removeButton'=> false
                                 ]); ?>
